@@ -1,7 +1,5 @@
-﻿  AutoUpdater.cpp
+﻿  Source.cpp
+  AutoUpdater.cpp
   Generating Code...
-h:\aie\complex game systems\assessment\autoupdater\autoupdater\autoupdater\autoupdater.cpp(93): warning C4715: 'AutoUpdater::downloadVersionNumber': not all control paths return a value
-  Skipping... (no relevant changes detected)
-  Source.cpp
   AutoUpdater.vcxproj -> H:\AIE\Complex Game Systems\Assessment\AutoUpdater\AutoUpdater\Debug\AutoUpdater.exe
   AutoUpdater.vcxproj -> H:\AIE\Complex Game Systems\Assessment\AutoUpdater\AutoUpdater\Debug\AutoUpdater.pdb (Partial PDB)

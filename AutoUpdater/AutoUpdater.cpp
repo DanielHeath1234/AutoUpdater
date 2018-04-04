@@ -3,7 +3,7 @@
 #include <curl/curl.h>
 #include <iostream>
 #include <iomanip>
-#include <sstream>
+//#include <sstream>
 #include <cassert>
 
 using std::string;
@@ -82,14 +82,14 @@ bool AutoUpdater::downloadVersionNumber()
 			// TODO: Better error handling.
 
 			// Should only be a developer issue due to version string
-			// being incorrect on file or version_url isn't valid.
+			// being incorrect on file or version_url isn't valid / downloading
+			// the wrong thing.
 			assert("Failed to initalise version string as type Version or invalid version url.");
 
-			/*std::cerr << "Failed to convert version string to type Version." << std::endl
-				<< "Recieved version string: " << readBuffer << std::endl;*/
 			return false;
 		}
 	}
+	return false;
 }
 
 bool AutoUpdater::checkForUpdate()
