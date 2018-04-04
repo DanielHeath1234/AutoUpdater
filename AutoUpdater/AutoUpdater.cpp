@@ -4,21 +4,38 @@
 #include <iostream>
 #include <iomanip>
 #include <sstream>
+#include <cassert>
 
 using std::string;
 
-AutoUpdater::AutoUpdater() : m_version(1.0f), m_versionURL("https://raw.githubusercontent.com/DanielHeath1234/AutoUpdater/master/version")
-{
+#define VERSION_TYPE
 
+AutoUpdater::AutoUpdater(float cur_version, string version_url) : m_version(cur_version)
+{
+	#define VERSION_TYPE f;
+
+	// Converts (string)version_url into char array.
+	strncpy_s(m_versionURL, (char*)version_url.c_str(), sizeof(m_versionURL));
+
+	// Runs the updater upon construction.
+	run();
+}
+
+AutoUpdater::AutoUpdater(Version cur_version, const string version_url) : m_versionType(&cur_version)
+{
+	#define VERSION_TYPE v;
+
+	// Converts (string)version_url into char array.
+	strncpy_s(m_versionURL, (char*)version_url.c_str(), sizeof(m_versionURL));
+
+	// Runs the updater upon construction.
+	run();
 }
 
 AutoUpdater::~AutoUpdater()
 {
-}
-
-void AutoUpdater::startup()
-{
-	
+	delete m_newVersionType;
+	delete m_versionType;
 }
 
 void AutoUpdater::run()
@@ -26,6 +43,8 @@ void AutoUpdater::run()
 	downloadVersionNumber();
 
 	checkForUpdate();
+
+	// TODO: GUI - Prompt user to update when available.
 }
 
 void AutoUpdater::downloadVersionNumber()
@@ -47,30 +66,43 @@ void AutoUpdater::downloadVersionNumber()
 		// Attempt to convert downloaded version number to a float.
 		try
 		{
-			m_newestVersion = std::stof(readBuffer);
+			// TODO: Handling for different version types.
+			#if VERSION_TYPE == f
+				m_newestVersion = std::stof(readBuffer);
+			#elif VERSION_TYPE == v
+				m_newVersionType = new Version(readBuffer);
+			#endif
 		}
 		catch (...)
 		{
-			std::cout << "Failed to convert version string to float." << std::endl
-				<< "Recieved version string: " << readBuffer << std::endl;
+			// TODO: Error handling, do not continue to check for update.
+
+			// Assert? Should only be a developer issue due to version --
+			// string being incorrectly entered.
+
+			#if VERSION_TYPE == f
+				std::cerr << "Failed to convert version string to float." << std::endl
+					<< "Recieved version string: " << readBuffer << std::endl;
+			#elif VERSION_TYPE == v
+				std::cerr << "Failed to convert version string to Version type." << std::endl
+					<< "Recieved version string: " << readBuffer << std::endl;
+			#endif
+
 			return;
+			
 		}
 
 		// Keep .0 on the end of float when outputting.
 		std::cout << std::fixed << std::setprecision(1);
-
-		// Outputting information to do with version numbers.
-		//std::cout << "Your current version: " << m_version << std::endl;
-		//std::cout << "Version read from hosted file: " << readBuffer << std::endl;
 	}
 }
 
 void AutoUpdater::checkForUpdate()
 {
-	// Checks differences in versions.
+	// Checks for differences in versions.
 	if (m_newestVersion <= m_version)
 	{
-		// The versions are either equal or newest version is < current.
+		// The versions are either equal or downloaded version is < current.
 		std::cout << "Your project is up to date." << std::endl 
 			<< "Current Version: " << m_version << std::endl << std::endl;
 		return;
@@ -86,21 +118,4 @@ size_t AutoUpdater::WriteCallback(void *contents, size_t size, size_t nmemb, voi
 {
 	((string*)userp)->append((char*)contents, size * nmemb);
 	return size * nmemb;
-}
-
-bool AutoUpdater::isValidFloat(const string &input)
-{
-	
-	return true;
-	/*char* end = 0;
-	double val = strtof(input.c_str(), &end);
-	return end != input.c_str() && val != HUGE_VAL;
-	/*std::istringstream iss(input);
-	float f;
-
-	// noskipws considers leading whitespace invalid
-	iss >> std::noskipws >> f;
-
-	// Check the entire string was consumed and if either failbit or badbit is set
-	return iss.eof() && !iss.fail();*/
 }
