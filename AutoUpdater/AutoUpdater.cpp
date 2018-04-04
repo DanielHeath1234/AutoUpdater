@@ -8,12 +8,8 @@
 
 using std::string;
 
-#define VERSION_TYPE
-
 AutoUpdater::AutoUpdater(float cur_version, string version_url) : m_version(cur_version)
 {
-	#define VERSION_TYPE f;
-
 	// Converts (string)version_url into char array.
 	strncpy_s(m_versionURL, (char*)version_url.c_str(), sizeof(m_versionURL));
 
@@ -23,8 +19,6 @@ AutoUpdater::AutoUpdater(float cur_version, string version_url) : m_version(cur_
 
 AutoUpdater::AutoUpdater(Version cur_version, const string version_url) : m_versionType(&cur_version)
 {
-	#define VERSION_TYPE v;
-
 	// Converts (string)version_url into char array.
 	strncpy_s(m_versionURL, (char*)version_url.c_str(), sizeof(m_versionURL));
 
@@ -67,11 +61,16 @@ void AutoUpdater::downloadVersionNumber()
 		try
 		{
 			// TODO: Handling for different version types.
-			#if VERSION_TYPE == f
-				m_newestVersion = std::stof(readBuffer);
-			#elif VERSION_TYPE == v
+			try
+			{
 				m_newVersionType = new Version(readBuffer);
-			#endif
+			}
+			catch (...)
+			{
+				std::cerr << "Failed to convert version string to Version type." << std::endl
+					<< "Recieved version string: " << readBuffer << std::endl;
+				return;
+			}
 		}
 		catch (...)
 		{
@@ -80,14 +79,8 @@ void AutoUpdater::downloadVersionNumber()
 			// Assert? Should only be a developer issue due to version --
 			// string being incorrectly entered.
 
-			#if VERSION_TYPE == f
 				std::cerr << "Failed to convert version string to float." << std::endl
 					<< "Recieved version string: " << readBuffer << std::endl;
-			#elif VERSION_TYPE == v
-				std::cerr << "Failed to convert version string to Version type." << std::endl
-					<< "Recieved version string: " << readBuffer << std::endl;
-			#endif
-
 			return;
 			
 		}
