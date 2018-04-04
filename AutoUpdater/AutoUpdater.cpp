@@ -8,19 +8,11 @@
 
 using std::string;
 
-AutoUpdater::AutoUpdater(float cur_version, string version_url) : m_version(cur_version)
+AutoUpdater::AutoUpdater(Version cur_version, const string version_url, const string download_url) : m_version(&cur_version)
 {
-	// Converts (string)version_url into char array.
+	// Converts const string into char array for use in CURL.
 	strncpy_s(m_versionURL, (char*)version_url.c_str(), sizeof(m_versionURL));
-
-	// Runs the updater upon construction.
-	run();
-}
-
-AutoUpdater::AutoUpdater(Version cur_version, const string version_url) : m_versionType(&cur_version)
-{
-	// Converts (string)version_url into char array.
-	strncpy_s(m_versionURL, (char*)version_url.c_str(), sizeof(m_versionURL));
+	strncpy_s(m_downloadURL, (char*)download_url.c_str(), sizeof(m_downloadURL));
 
 	// Runs the updater upon construction.
 	run();
@@ -28,20 +20,31 @@ AutoUpdater::AutoUpdater(Version cur_version, const string version_url) : m_vers
 
 AutoUpdater::~AutoUpdater()
 {
-	delete m_newVersionType;
-	delete m_versionType;
+
 }
 
 void AutoUpdater::run()
 {
-	downloadVersionNumber();
+	// Keep .0 on the end of float when outputting.
+	std::cout << std::fixed << std::setprecision(1);
 
-	checkForUpdate();
+	if(downloadVersionNumber())
+	{
+		// Version number downloaded and handled correctly.
 
-	// TODO: GUI - Prompt user to update when available.
+		if (checkForUpdate()) 
+		{
+			// Update available.
+			// TODO: Launch GUI
+		}
+		else
+		{
+			// Up to date.
+		}
+	}
 }
 
-void AutoUpdater::downloadVersionNumber()
+bool AutoUpdater::downloadVersionNumber()
 {
 	CURL *curl;
 	CURLcode res;
@@ -51,60 +54,61 @@ void AutoUpdater::downloadVersionNumber()
 	if (curl)
 	{
 		// Download version number from file.
+		// TODO: Will this handle other types of URLs? 
+		// pastebin, random website etc
 		curl_easy_setopt(curl, CURLOPT_URL, m_versionURL);
 		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
 		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &readBuffer);
 		res = curl_easy_perform(curl);
 		curl_easy_cleanup(curl);
 
-		// Attempt to convert downloaded version number to a float.
+		// Attempt to initalise downloaded version string as type Version.
 		try
 		{
-			// TODO: Handling for different version types.
-			try
+			for (size_t i = 0; i < readBuffer.size(); i++)
 			{
-				m_newVersionType = new Version(readBuffer);
+				// Replace new-line with null-terminator.
+				if (readBuffer[i] == '\n')
+				{
+					readBuffer[i] = '\0';
+					break;
+				}
 			}
-			catch (...)
-			{
-				std::cerr << "Failed to convert version string to Version type." << std::endl
-					<< "Recieved version string: " << readBuffer << std::endl;
-				return;
-			}
+			m_newVersion = new Version(readBuffer);
+			return true;
 		}
 		catch (...)
 		{
-			// TODO: Error handling, do not continue to check for update.
+			// TODO: Better error handling.
 
-			// Assert? Should only be a developer issue due to version --
-			// string being incorrectly entered.
+			// Should only be a developer issue due to version string
+			// being incorrect on file or version_url isn't valid.
+			assert("Failed to initalise version string as type Version or invalid version url.");
 
-				std::cerr << "Failed to convert version string to float." << std::endl
-					<< "Recieved version string: " << readBuffer << std::endl;
-			return;
-			
+			/*std::cerr << "Failed to convert version string to type Version." << std::endl
+				<< "Recieved version string: " << readBuffer << std::endl;*/
+			return false;
 		}
-
-		// Keep .0 on the end of float when outputting.
-		std::cout << std::fixed << std::setprecision(1);
 	}
 }
 
-void AutoUpdater::checkForUpdate()
+bool AutoUpdater::checkForUpdate()
 {
 	// Checks for differences in versions.
-	if (m_newestVersion <= m_version)
+	if (m_version->operator<(*m_newVersion))
 	{
-		// The versions are either equal or downloaded version is < current.
-		std::cout << "Your project is up to date." << std::endl 
-			<< "Current Version: " << m_version << std::endl << std::endl;
-		return;
+		// An update is available.
+		std::cout << "An Update is Available." << std::endl
+			<< "Newest Version: " << m_newVersion->getVersionString() << std::endl
+			<< "Current Version: " << m_version->getVersionString() << std::endl << std::endl;
+		return true;
 	}
 
-	// An update is available.
-	std::cout << "An Update is Available." << std::endl
-		<< "Newest Version: " << m_newestVersion << std::endl
-		<< "Current Version: " << m_version << std::endl << std::endl;
+	// The versions are either equal or downloaded version string is < current.
+	std::cout << "Your project is up to date." << std::endl
+		<< "Downloaded Version: " << m_newVersion->getVersionString() << std::endl
+		<< "Current Version: " << m_version->getVersionString() << std::endl << std::endl;
+	return false;
 }
 
 size_t AutoUpdater::WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)
