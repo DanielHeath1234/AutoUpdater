@@ -1,5 +1,4 @@
 ﻿  Source.cpp
   AutoUpdater.cpp
+c:\program files (x86)\windows kits\8.1\include\um\combaseapi.h(229): error C2760: syntax error: unexpected token 'identifier', expected 'type specifier'
   Generating Code...
-  AutoUpdater.vcxproj -> H:\AIE\Complex Game Systems\Assessment\AutoUpdater\AutoUpdater\Debug\AutoUpdater.exe
-  AutoUpdater.vcxproj -> H:\AIE\Complex Game Systems\Assessment\AutoUpdater\AutoUpdater\Debug\AutoUpdater.pdb (Partial PDB)

@@ -36,10 +36,30 @@ void AutoUpdater::run()
 		{
 			// Update available.
 			// TODO: Launch GUI
+			char input;
+
+			std::cout << "Would you like to update? (y,n)" << std::endl;
+			std::cin >> input;
+
+			switch (input)
+			{
+			case 'y':
+				std::cout << "Installing update please wait..." << std::endl;
+				break;
+
+			case 'n':
+				return;
+				break;
+
+			default:
+				return;
+				break;
+			}
 		}
 		else
 		{
 			// Up to date.
+			system("pause");
 		}
 	}
 }
@@ -82,8 +102,8 @@ bool AutoUpdater::downloadVersionNumber()
 			// TODO: Better error handling.
 
 			// Should only be a developer issue due to version string
-			// being incorrect on file or version_url isn't valid / downloading
-			// the wrong thing.
+			// being incorrect on file or version_url isn't valid
+			//  / downloading the wrong thing.
 			assert("Failed to initalise version string as type Version or invalid version url.");
 
 			return false;
@@ -94,8 +114,17 @@ bool AutoUpdater::downloadVersionNumber()
 
 bool AutoUpdater::checkForUpdate()
 {
-	// Checks for differences in versions.
-	if (m_version->operator<(*m_newVersion))
+	// TODO: >= operator -- Make it single check.
+	// Checks if versions are equal.
+	if (m_version->operator=(*m_newVersion))
+	{
+		// The versions are equal.
+		std::cout << "Your project is up to date." << std::endl
+			<< "Downloaded Version: " << m_newVersion->getVersionString() << std::endl
+			<< "Current Version: " << m_version->getVersionString() << std::endl << std::endl;
+		return false;
+	}
+	else if (m_version->operator<(*m_newVersion)) // Checks for differences in versions.
 	{
 		// An update is available.
 		std::cout << "An Update is Available." << std::endl
@@ -104,7 +133,7 @@ bool AutoUpdater::checkForUpdate()
 		return true;
 	}
 
-	// The versions are either equal or downloaded version string is < current.
+	// The version downloaded version string is < current.
 	std::cout << "Your project is up to date." << std::endl
 		<< "Downloaded Version: " << m_newVersion->getVersionString() << std::endl
 		<< "Current Version: " << m_version->getVersionString() << std::endl << std::endl;

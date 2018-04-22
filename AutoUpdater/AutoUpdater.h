@@ -59,27 +59,8 @@ public:
 		return std::to_string(major) + "." + std::to_string(minor) + "." + revision; 
 	}
 
-	bool operator>(const Version &v)
-	{
-		if (major > v.major && minor > v.minor)
-		{
-			int i = 0;
-			while (revision[i] != '\0')
-			{
-				if (revision[i] < v.revision[i])
-				{
-					return false;
-				}
-				i++;
-			}
-			return true;
-		}
-		return false;
-	}
 	bool operator<(const Version &v)
 	{
-		// TODO: Cunt's fucked. Get this working then straight to work on the GUI
-		// Maybe do some quick mockups of ui flow?
 		if (major <= v.major)
 		{
 			if (minor <= v.minor)
@@ -96,10 +77,6 @@ public:
 					}
 					else
 					{
-						if (revision[i] < v.revision[i])
-						{
-							return true;
-						}
 						if (revision[i] == v.revision[i] && revision[i+1] != '\0')
 						{
 							return false;
@@ -117,38 +94,11 @@ public:
 		if (major == v.major && minor == v.minor)
 		{
 			int i = 0;
-			while (revision[i] != '\0')
+			while (revision[i] != '\0' && v.revision[i] != '\0')
 			{
 				if (revision[i] != v.revision[i])
 				{
 					return false;
-				}
-				i++;
-			}
-			return true;
-		}
-		return false;
-	}
-	bool operator<=(const Version &v)
-	{
-		if (major <= v.major && minor <= v.minor)
-		{
-			int i = 0;
-			while (revision[i] != '\0')
-			{		
-				if (revision[i+1] != '\0' && v.revision[i+1] != '\0')
-				{
-					if (revision[i] > v.revision[i])
-					{
-						return false;
-					}
-				}
-				else
-				{
-					if (revision[i] == v.revision[i])
-					{
-						return true;
-					}
 				}
 				i++;
 			}
@@ -171,7 +121,7 @@ public:
 private:
 	int major;
 	int minor;
-	char revision[5]; // Memory for a triple digit revision number, a single character and a null-terminator ('\0').
+	char revision[5]; // Memory for 4 characters and a null-terminator ('\0').
 };
 
 class AutoUpdater
