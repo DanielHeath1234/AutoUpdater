@@ -1,5 +1,6 @@
 #pragma once
 #include <string>
+#include <Windows.h>
 
 using std::string;
 
@@ -30,7 +31,7 @@ public:
 			{
 				// Contains 1 period.
 				minor = stoi(version.substr(pos + 1));
-				revision[5] = -1;
+				revision[0] = '\0';
 			}
 		}
 		else
@@ -134,16 +135,21 @@ public:
 	
 	bool downloadVersionNumber();
 	bool checkForUpdate();
+	void launchGUI();
+	int downloadUpdate();
 
 private:
-	static size_t WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
+	static size_t _WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);
+	static size_t _WriteData(void *ptr, size_t size, size_t nmemb, FILE *stream);
+	static int _DownloadProgress(void* ptr, double total_download, double downloaded, double total_upload, double uploaded);
 
 protected:
 
 	Version *m_version;
 	Version *m_newVersion;
 
-	char m_versionURL[256];
+	char m_versionURL[256]; // Can change if url needs to be longer.
 	char m_downloadURL[256];
+	char m_downloadPATH[MAX_PATH];
 };
 
