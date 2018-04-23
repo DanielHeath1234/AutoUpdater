@@ -137,6 +137,7 @@ public:
 	bool checkForUpdate();
 	void launchGUI();
 	int downloadUpdate();
+	void unZip();
 
 private:
 	static size_t _WriteCallback(void *contents, size_t size, size_t nmemb, void *userp);

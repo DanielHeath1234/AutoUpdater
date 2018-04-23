@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <curl/curl.h>
+#include <zlib\zlib.h>
 #include <iostream>
 #include <iomanip>
 #include <sstream>
@@ -193,6 +194,11 @@ int AutoUpdater::downloadUpdate()
 		fclose(fp);
 	}
 	return 0;
+}
+
+void AutoUpdater::unZip()
+{
+
 }
 
 size_t AutoUpdater::_WriteCallback(void *contents, size_t size, size_t nmemb, void *userp)

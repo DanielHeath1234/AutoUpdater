@@ -1,3 +1,5 @@
-﻿  AutoUpdater.cpp
-d:\aie\complex game systems\assessment\autoupdater\autoupdater\autoupdater\autoupdater.cpp(222): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+﻿  Source.cpp
+  AutoUpdater.cpp
+d:\aie\complex game systems\assessment\autoupdater\autoupdater\autoupdater\autoupdater.cpp(229): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+  Generating Code...
   AutoUpdater.vcxproj -> D:\AIE\Complex Game Systems\Assessment\AutoUpdater\AutoUpdater\Debug\AutoUpdater.exe
